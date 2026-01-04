@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Cinematic Experience</title>
+    <style>
+        /* Base Styling */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Full Screen Video Container */
+        .video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            z-index: 1;
+        }
+
+        /* Video filling the entire screen */
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Fill screen without distortion */
+            transition: opacity 1s ease-in-out;
+            opacity: 1;
+        }
+
+        .fade-out { opacity: 0; }
+
+        /* Premium Overlay Gradient */
+        .overlay-vignette {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.8) 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* Pink Glowing Next Button */
+        .btn-next {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translate(-50%, 20px);
+            padding: 16px 45px;
+            background: linear-gradient(45deg, #ff1493, #ff69b4);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.6), 0 0 40px rgba(255, 20, 147, 0.3);
+        }
+
+        .btn-next.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, 0);
+        }
+
+        .btn-next:hover {
+            box-shadow: 0 0 30px #ff1493, 0 0 60px #ff1493;
+            letter-spacing: 4px;
+        }
+
+        /* Initial Tap to Start (Required for Music) */
+        #start-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            color: white;
+            cursor: pointer;
+        }
+
+        .start-text {
+            border: 1px solid #ff1493;
+            padding: 10px 20px;
+            border-radius: 5px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; box-shadow: 0 0 0px #ff1493; }
+            50% { opacity: 1; box-shadow: 0 0 20px #ff1493; }
+            100% { opacity: 0.5; box-shadow: 0 0 0px #ff1493; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="start-screen" onclick="begin()">
+        <div class="start-text">TAP TO START EXPERIENCE</div>
+    </div>
+
+    <audio id="bgSong" src="song.mp3" loop></audio>
+
+    <div class="video-container">
+        <div class="overlay-vignette"></div>
+        <video id="player" muted playsinline>
+            <source id="videoSource" src="Clip01.mp4" type="video/mp4">
+        </video>
+        <button id="nextBtn" class="btn-next" onclick="loadNextClip()">Next Clip</button>
+    </div>
+
+    <script>
+        let clipIndex = 1;
+        const totalClips = 8; // Tuze total Clips
+        
+        const video = document.getElementById('player');
+        const nextBtn = document.getElementById('nextBtn');
+        const song = document.getElementById('bgSong');
+        const startScreen = document.getElementById('start-screen');
+
+        function begin() {
+            startScreen.style.display = 'none';
+            song.play();
+            video.play();
+        }
+
+        // Clip sampli ki button dakva
+        video.onended = () => {
+            nextBtn.classList.add('active');
+        };
+
+        function loadNextClip() {
+            clipIndex++;
+            
+            if (clipIndex <= totalClips) {
+                // Smooth Fade Out
+                video.classList.add('fade-out');
+                nextBtn.classList.remove('active');
+
+                setTimeout(() => {
+                    // Change Source
+                    let name = clipIndex < 10 ? `Clip0${clipIndex}.mp4` : `Clip${clipIndex}.mp4`;
+                    video.src = name;
+                    video.load();
+                    
+                    // Smooth Fade In
+                    video.oncanplay = () => {
+                        video.classList.remove('fade-out');
+                        video.play();
+                    };
+                }, 1000); // 1 second cha transition delay
+            } else {
+                nextBtn.innerText = "FINISH";
+                alert("Experience Completed!");
+            }
+        }
+    </script>
+</body>
+</html>
